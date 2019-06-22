@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Image Analyzer</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      function processImage() {
+        // Replace <Subscription Key> with your valid subscription key.
+        var subscriptionKey = "5e4ca5a80cab428cb1095f7c5d3b60bd";
+
+        // Free trial subscription keys are generated in the "westus" region.
+        // If you use a free trial subscription key, you shouldn't need to change
+        // this region.
+        var uriBase =
+          "https://southeastasia.api.cognitive.microsoft.com/vision/v2.0/analyze";
+
+        // Request parameters.
+        var params = {
+          visualFeatures: "Categories,Description,Color",
+          details: "",
+          language: "en"
+        };
+
+        // Get URL image.
+        var sourceImageUrl = document.getElementById("source-image").src;
+
+        // Make the REST API call.
+        $.ajax({
+          url: uriBase + "?" + $.param(params),
+
+          // Request headers.
+          beforeSend: function(xhrObj) {
+            xhrObj.setRequestHeader("Content-Type", "application/json");
+            xhrObj.setRequestHeader(
+              "Ocp-Apim-Subscription-Key",
+              subscriptionKey
+            );
+          },
+
+          type: "POST",
+
+          // Request body.
+          data: '{"url": ' + '"' + sourceImageUrl + '"}'
+        })
+
+          .done(function(data) {
+            // Show formatted JSON on webpage.
+            $("#responseTextArea").val(JSON.stringify(data, null, 2));
+          })
+
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            // Display error message.
+            var errorString =
+              errorThrown === ""
+                ? "Error. "
+                : errorThrown + " (" + jqXHR.status + "): ";
+            errorString +=
+              jqXHR.responseText === ""
+                ? ""
+                : jQuery.parseJSON(jqXHR.responseText).message;
+            alert(errorString);
+          });
+      }
+
+      function clearTextArea() {
+        document.getElementById("responseTextArea").value = "";
+      }
+    </script>
+    <h1 class="text-center mt-3">Image Analyzer</h1>
+    <div class="container">
+      <div class="input-group mt-5">
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="inputImage" />
+          <label class="custom-file-label" for="inputImage"
+            >Choose your image!</label
+          >
+        </div>
+        <div class="input-group-append">
+          <button
+            class="btn btn-dark"
+            type="button"
+            id="select-button"
+            onclick="processImage()"
+          >
+            Analyze!
+          </button>
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col">
+          <div class="card">
+            <div class="card-header bg-dark text-white">
+              Analysis Result
+              <button
+                class="btn btn-info btn-sm float-right"
+                onclick="clearTextArea()"
+              >
+                Clear
+              </button>
+            </div>
+            <div class="card-body">
+              <textarea
+                class="form-control"
+                id="responseTextArea"
+                rows="10"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <img
+            id="source-image"
+            class="shadow-box float-center"
+            width="500"
+            alt=""
+          />
+        </div>
+      </div>
+    </div>
+    <h6 class="text-center mt-5">&copy; Hadyandev</h6>
+    <script src="js/azure-storage.blob.min.js" charset="utf-8"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
